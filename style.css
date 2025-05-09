@@ -1,0 +1,569 @@
+/* 커스텀 커서를 위한 CSS 변수 정의 - 전역 변수로 사용됨 */
+:root {
+    --cursor-color: transparent;          /* 주 커서 배경색은 투명하게 */
+    --cursor-border: #ffffff;             /* 주 커서 테두리 색상 (흰색) */
+    --cursor-dot-color: #cccccc;          /* 커서 중앙 점 색상 (연한 회색) */
+    --follower-color: rgba(255, 255, 255, 0.2); /* 팔로워(잔상) 커서의 색상 (반투명 흰색) */
+    --cursor-size: 40px;                  /* 커서의 기본 크기 - 필요시 조절 가능 */
+    --cursor-dot-size: 5px;               /* 커서 중앙 점 크기 */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    cursor: none;
+}
+
+body {
+    font-family: 'Inter', Arial, sans-serif;
+    background-color: #DEE2D6;
+    overflow: hidden;
+    height: 100vh;
+}
+
+.container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    background: #DEE2D6;
+    overflow: hidden;
+}
+
+/* 배경 요소 */
+.background {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: #DEE2D6;
+    z-index: -1;
+}
+
+/* 모든 드래그 가능한 요소의 공통 스타일 */
+.draggable {
+    position: absolute;
+    cursor: none;
+    z-index: 10;
+}
+
+/* 세로 쓰기 텍스트 - 왼쪽 */
+.vertical-text.left-vertical {
+    position: absolute;
+    top: 20px;
+    left: 10%;
+    width: 100px;
+    height: auto;
+    min-height: 500px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    text-align: center;
+    color: #D00777;
+    font-size: 75px;
+    font-weight: 800;
+    cursor: none;
+    transform: rotate(180deg);
+    animation: scrollDown2 30s linear infinite;
+    white-space: nowrap;
+}
+
+/* 세로 쓰기 텍스트 - 오른쪽 */
+.vertical-text.right-vertical {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 160px;
+    height: 100%;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    text-align: center;
+    color: #D00777;
+    font-size: 90px;
+    font-weight: 800;
+    cursor: none;
+    animation: scrollUp 28s linear infinite;
+}
+
+/* Parsons School of design 텍스트 */
+.vertical-text.school-text {
+    position: absolute;
+    top: 20px;
+    left: 23%;
+    width: 100px;
+    height: auto;
+    min-height: 500px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    text-align: center;
+    color: #2C9597;
+    font-size: 90px;
+    font-weight: 700;
+    cursor: none;
+    transform: rotate(180deg);
+    animation: scrollUp2 35s linear infinite;
+    white-space: nowrap;
+}
+
+/* 컬럼이 필요없어졌으므로 제거 */
+.vertical-column {
+    display: none;
+}
+
+/* 숫자와 알파벳 공통 스타일 */
+.vertical-writing {
+    position: absolute;
+    height: auto;
+    width: auto;
+    overflow: visible;
+    cursor: none;
+    z-index: 10;
+}
+
+/* 왼쪽 숫자 */
+.vertical-writing.left-numbers {
+    top: 20px;
+    left: 36%;
+    width: 40px;
+    height: auto;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 0;
+    animation: scrollUp 25s linear infinite;
+}
+
+/* 중앙 파란 숫자 */
+.vertical-writing.center-numbers {
+    top: 20px;
+    left: 48%;
+    width: 80px;
+    height: auto;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 0;
+    animation: scrollDown 28s linear infinite;
+}
+
+/* 알파벳 섹션 */
+.vertical-writing.alphabet-section {
+    top: 20px;
+    left: 60%;
+    width: 60px;
+    height: auto;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 0;
+    animation: scrollUp 22s linear infinite;
+}
+
+/* 오른쪽 숫자 */
+.vertical-writing.right-numbers {
+    top: 20px;
+    left: 72%;
+    width: 40px;
+    height: auto;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 0;
+    animation: scrollDown 27s linear infinite;
+}
+
+/* 추가 텍스트 요소 1 */
+.vertical-text.additional-text1 {
+    position: absolute;
+    top: 20px;
+    left: 85%;
+    width: 100px;
+    height: auto;
+    min-height: 500px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    text-align: center;
+    color: #D00777;
+    font-size: 75px;
+    font-weight: 700;
+    cursor: none;
+    animation: scrollUp 32s linear infinite;
+}
+
+/* 추가 텍스트 요소 2 */
+.vertical-text.additional-text2 {
+    position: absolute;
+    top: 250px;
+    left: 250px;
+    width: 160px;
+    height: 100%;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    text-align: center;
+    color: #6A097D;
+    font-size: 65px;
+    font-weight: 700;
+    cursor: none;
+    animation: scrollUp 21s linear infinite;
+}
+
+/* 안내 텍스트 */
+.instruction-text {
+    position: absolute;
+    top: 30px;
+    right: 200px;
+    width: 350px;
+    height: 100px;
+    text-align: center;
+    color: #2C9597;
+    font-size: 30px;
+    font-weight: 800;
+    cursor: none;
+    animation: scrollLeftRight 23s linear infinite reverse;
+}
+
+/* 추가 안내 메시지 */
+.instruction-text2 {
+    position: absolute;
+    top: 150px;
+    right: 250px;
+    width: 200px;
+    height: 100px;
+    text-align: center;
+    color: #FF8A00;
+    font-size: 25px;
+    font-weight: 800;
+    cursor: none;
+    animation: scrollLeftRight 19s linear infinite;
+}
+
+/* 컨트롤 섹션 */
+.control-section {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 15px;
+    z-index: 100;
+}
+
+/* 컨트롤 버튼 스타일 */
+.control-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    color: #333;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-size: cover;
+    background-position: center;
+}
+
+#add-button {
+    background-image: url('./images/radiobutton.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+/* 휴지통 스타일 */
+.trash-can {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background: url('./images/trashcan.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+/* 선택된 요소를 위한 스타일 */
+.selected {
+    background-color: rgba(248, 228, 219, 0.3);
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 드래그 중인 요소를 위한 스타일 */
+.dragging {
+    opacity: 0.7;
+    cursor: grabbing;
+}
+
+/* 요소에 마우스 올렸을 때 배경 추가 */
+.hover-box {
+    background-color: #F8E4DB;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+/* 편집 모드를 위한 스타일 */
+.editable {
+    border: 1px dashed #D9D9D9;
+    padding: 5px;
+    min-width: 20px;
+    min-height: 30px;
+}
+
+/* 스크롤 애니메이션 - 위에서 아래로 */
+@keyframes scrollUp {
+    0% {
+        transform: translateY(100vh);
+    }
+    100% {
+        transform: translateY(-100%);
+    }
+}
+
+@keyframes scrollUp2 {
+    0% {
+        transform: translateY(100vh) rotate(180deg);
+    }
+    100% {
+        transform: translateY(-100%) rotate(180deg);
+    }
+}
+
+/* 스크롤 애니메이션 - 아래에서 위로 */
+@keyframes scrollDown {
+    0% {
+        transform: translateY(-100%);
+    }
+    100% {
+        transform: translateY(100vh);
+    }
+}
+
+/* 스크롤 애니메이션 - 아래에서 위로 */
+@keyframes scrollDown2 {
+    0% {
+        transform: translateY(-100%) rotate(180deg);
+    }
+    100% {
+        transform: translateY(100vh) rotate(180deg);
+    }
+}
+
+/* 좌우 스크롤 애니메이션 */
+@keyframes scrollLeftRight {
+    0% {
+        transform: translateX(-20%);
+    }
+    100% {
+        transform: translateX(20%);
+    }
+}
+
+/* 숫자 스타일 */
+.number {
+    margin: 5px 0;
+    font-size: 36px;
+    font-weight: 400;
+    cursor: none;
+    user-select: none;
+    color: #FA1616;
+    display: block;
+}
+
+/* 파란 숫자 스타일 */
+.blue-number {
+    margin: 5px 0;
+    font-size: 80px;
+    color: #6ABEDA;
+    cursor: none;
+    user-select: none;
+    font-weight: 400;
+    display: block;
+}
+
+/* 알파벳 스타일 */
+.alphabet {
+    margin: 5px 0;
+    font-size: 48px;
+    color: #1651E4;
+    cursor: none;
+    user-select: none;
+    font-weight: 800;
+    display: block;
+}
+
+/* 컨트롤 패널 스타일 */
+.control-panel {
+    all: unset;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    background-color: #DEE2D6;
+    border-radius: 10px;
+    padding: 15px;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.control-panel h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 16px;
+}
+
+/* 사이즈 조절 슬라이더 */
+.size-control {
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.size-control,
+.color-control {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.size-label,
+.color-label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #B77A7A;
+    margin-bottom: 5px;
+    flex: 0 0 60px;
+}
+
+.size-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: #e1e1e1;
+    outline: none;
+    margin: 10px 0;
+    flex: 1;
+}
+
+.size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #FEB7B9;
+    border: 2px solid #5FBFC1;
+    cursor: pointer;
+}
+
+.size-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #FEB7B9;
+    border: 2px solid #5FBFC1;
+    cursor: pointer;
+}
+
+.size-slider::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, #FEB7B9 var(--value, 50%), #e1e1e1 var(--value, 50%));
+}
+
+/* 색상 선택 도구 */
+.color-control {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.color-display-wrapper {
+    position: relative;
+    width: 100%;
+    flex: 1;
+}
+
+/* jscolor 입력 필드 스타일 */
+.jscolor {
+    width: 100%;
+    height: 40px;
+    border: 2px solid #5FBFC1 !important;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+/* 변경사항을 위한 버튼 - 필요 없어서 제거 */
+.apply-button {
+    display: none;
+}
+
+/* 이전 스타일 제거 */
+.color-display-container,
+.color-picker-container,
+.color-picker-palette,
+.color-picker-crosshair,
+.color-picker-slider,
+.color-picker-panel,
+.color-display {
+    display: none;
+}
+
+/* 커스텀 커서 스타일 - JS에서 동적으로 생성된 커서 요소에 적용됨 */
+.cursor {
+    width: var(--cursor-size);          /* CSS 변수 사용으로 일관된 크기 유지 */
+    height: var(--cursor-size);
+    border-radius: 50%;                 /* 원형 커서 형태 */
+    position: absolute;                 /* 화면 내 자유로운 위치 지정 */
+    background-color: var(--cursor-color); /* 커서 배경색 (투명) */
+    border: 3px solid var(--cursor-border); /* 흰색 테두리 */
+    transform: translate(-50%, -50%);   /* 커서 중앙점이 마우스 포인터 위치에 오도록 조정 */
+    pointer-events: none;               /* 마우스 이벤트 통과 - 하단 요소 클릭 가능 */
+    z-index: 9999;                      /* 항상 최상위에 표시 */
+    box-shadow: none;                   /* 글로우 효과 제거 */
+    border-width: 4px;
+}
+
+/* 커서 중앙 점 (가상 요소 사용) */
+.cursor::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--cursor-dot-size);
+    height: var(--cursor-dot-size);
+    background-color: var(--cursor-dot-color);
+    border-radius: 50%;
+}
+
+/* 팔로워(잔상) 커서 스타일 - 메인 커서를 따라다니는 잔상 효과 */
+.follower {
+    width: var(--cursor-size);          /* 기본 크기는 메인 커서와 동일 */
+    height: var(--cursor-size);
+    border-radius: 50%;                 /* 원형 형태 */
+    position: absolute;                 /* 자유로운 위치 지정 */
+    transform: translate(-50%, -50%);   /* 중앙 정렬 */
+    background-color: transparent;      /* 배경색 투명 */
+    border: 1px solid var(--follower-color); /* 반투명 테두리 */
+    pointer-events: none;               /* 마우스 이벤트 통과 */
+    z-index: 9998;                      /* 메인 커서보다 낮은 z-index로 뒤에 배치 */
+} 

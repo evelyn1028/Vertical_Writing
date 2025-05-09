@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>세로 쓰기 프로젝트</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- GSAP 라이브러리 - 커스텀 커서의 부드러운 애니메이션 구현에 필요 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- jscolor 라이브러리 - 색상 선택 기능 구현에 필요 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.0.4/jscolor.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 배경 -->
+        <div class="background"></div>
+    
+        <!-- 왼쪽 Vertical Writing -->
+        <div class="vertical-text left-vertical draggable" draggable="true">Vertical Writing</div>
+        
+        <!-- 왼쪽 Parsons School of design -->
+        <div class="vertical-text school-text draggable" draggable="true">Parsons School of design</div>
+        
+        <!-- 왼쪽 빨간 숫자 (하나의 묶음) -->
+        <div class="vertical-writing left-numbers draggable" draggable="true">
+            <span class="number">1</span>
+            <span class="number">2</span>
+            <span class="number">3</span>
+            <span class="number">4</span>
+            <span class="number">5</span>
+            <span class="number">6</span>
+            <span class="number">7</span>
+            <span class="number">8</span>
+            <span class="number">9</span>
+            <span class="number">10</span>
+            <span class="number">11</span>
+            <span class="number">12</span>
+            <span class="number">13</span>
+            <span class="number">14</span>
+            <span class="number">15</span>
+            <span class="number">16</span>
+        </div>
+        
+        <!-- 중앙 파란 숫자 (하나의 묶음) -->
+        <div class="vertical-writing center-numbers draggable" draggable="true">
+            <span class="blue-number">39</span>
+            <span class="blue-number">40</span>
+            <span class="blue-number">41</span>
+            <span class="blue-number">42</span>
+            <span class="blue-number">43</span>
+            <span class="blue-number">44</span>
+            <span class="blue-number">45</span>
+            <span class="blue-number">46</span>
+        </div>
+        
+        <!-- 알파벳 섹션 (하나의 묶음) -->
+        <div class="vertical-writing alphabet-section draggable" draggable="true">
+            <span class="alphabet">A</span>
+            <span class="alphabet">B</span>
+            <span class="alphabet">C</span>
+            <span class="alphabet">D</span>
+            <span class="alphabet">E</span>
+            <span class="alphabet">F</span>
+            <span class="alphabet">G</span>
+            <span class="alphabet">H</span>
+            <span class="alphabet">I</span>
+            <span class="alphabet">J</span>
+            <span class="alphabet">K</span>
+            <span class="alphabet">L</span>
+            <span class="alphabet">M</span>
+            <span class="alphabet">N</span>
+        </div>
+        
+        <!-- 오른쪽 빨간 숫자 (하나의 묶음) -->
+        <div class="vertical-writing right-numbers draggable" draggable="true">
+            <span class="number">1</span>
+            <span class="number">2</span>
+            <span class="number">3</span>
+            <span class="number">4</span>
+            <span class="number">5</span>
+            <span class="number">6</span>
+            <span class="number">7</span>
+            <span class="number">8</span>
+            <span class="number">9</span>
+            <span class="number">10</span>
+            <span class="number">11</span>
+            <span class="number">12</span>
+            <span class="number">13</span>
+            <span class="number">14</span>
+            <span class="number">15</span>
+            <span class="number">16</span>
+        </div>
+        
+        <!-- 오른쪽 Vertical Writing -->
+        <div class="vertical-text additional-text1 draggable" draggable="true">Vertical Writing</div>
+    
+        <!-- 컨트롤 버튼 -->
+        <div class="control-section">
+            <button id="add-button" class="control-button"></button>
+            <div id="trash" class="trash-can"></div>
+        
+            <!-- 스타일 컨트롤 패널 -->
+            <div id="style-control-panel" class="control-panel">
+                <div class="size-control">
+                    <label for="size-slider" class="size-label">size</label>
+                    <input type="range" id="size-slider" class="size-slider" min="10" max="100" value="50" disabled>
+                </div>
+                <div class="color-control">
+                    <label for="color-picker-element" class="color-label">color</label>
+                    <div class="color-display-wrapper">
+                        <!-- 색상 입력 요소 (표시 및 클릭 가능) -->
+                        <input id="color-picker-element" class="jscolor {width:200, height:150, position:'right', closeButton:true, closeText:'닫기', borderColor:'#5FBFC1', insetColor:'#5FBFC1', backgroundColor:'#FFF', onFineChange:'updateTextColor(this)'}" value="000000">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

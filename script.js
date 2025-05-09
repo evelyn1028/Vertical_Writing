@@ -22,16 +22,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // 커스텀 커서 초기화 - 마우스 포인터 위치를 추적하고 시각적 효과 제공
-    try {
-        // Follower 클래스의 새 인스턴스 생성
-        // - delay: 0.2초 (팔로워 잔상 간의 시간 지연)
-        // - count: 7개 (메인 커서 뒤에 따라오는 잔상 개수)
-        new Follower({ delay: 0.2, count: 7 });
-    } catch (error) {
-        // 오류 발생 시 콘솔에 오류 메시지 출력 (디버깅용)
-        console.error("커스텀 커서 초기화 오류:", error);
-    }
+    // CSS 커서를 위한 마우스 이동 추적
+    document.addEventListener('mousemove', function(e) {
+        // 마우스 위치 업데이트
+        document.body.style.setProperty('--cursor-left', e.clientX + 'px');
+        document.body.style.setProperty('--cursor-top', e.clientY + 'px');
+    });
+
+    // 드래그 가능한 요소에 호버 효과 추가
+    const interactiveElements = document.querySelectorAll('.draggable, .control-button, .trash-can');
+    interactiveElements.forEach(element => {
+        // 마우스 진입 시 커서 확대
+        element.addEventListener('mouseenter', () => {
+            document.body.classList.add('hover-cursor');
+        });
+        
+        // 마우스 나갈 때 커서 원래대로
+        element.addEventListener('mouseleave', () => {
+            document.body.classList.remove('hover-cursor');
+        });
+    });
+
+    // 마우스 클릭 시 효과
+    document.addEventListener('mousedown', () => {
+        document.body.classList.add('click-cursor');
+    });
+
+    document.addEventListener('mouseup', () => {
+        document.body.classList.remove('click-cursor');
+    });
     
     // + 버튼 이벤트 리스너
     document.getElementById('add-button').addEventListener('click', function() {
@@ -51,6 +70,11 @@ document.addEventListener('DOMContentLoaded', function() {
             clone.style.position = 'absolute';
             clone.style.left = (rect.left + 20) + 'px';
             clone.style.top = (rect.top + 20) + 'px';
+            
+            // 복제된 요소가 vertical-writing 클래스를 가지고 있다면 너비 조정
+            if (clone.classList.contains('vertical-writing')) {
+                adjustContainerWidth(clone);
+            }
         } else {
             alert('요소를 먼저 선택해 주세요!');
         }
@@ -139,6 +163,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // selectedElement를 전역 객체에 노출 (색상 선택기가 접근할 수 있도록)
     window.selectedElement = selectedElement;
+    
+    // 초기 로드 시 모든 vertical-writing 컨테이너의 너비를 내부 요소에 맞게 조정
+    const verticalWritingContainers = document.querySelectorAll('.vertical-writing');
+    verticalWritingContainers.forEach(container => {
+        adjustContainerWidth(container);
+    });
 });
 
 // 텍스트 색상 업데이트 함수 (글로벌 스코프에 필요)
@@ -177,6 +207,31 @@ function addEventListenersToElements() {
             // 편집 모드 활성화
             this.contentEditable = true;
             this.classList.add('editable');
+            
+            // 편집 시작 시 컨테이너 너비 초기화
+            if (this.classList.contains('vertical-writing')) {
+                // 데이터 속성이 없으면 현재 너비를 저장
+                if (!this.dataset.originalWidth) {
+                    this.dataset.originalWidth = window.getComputedStyle(this).width;
+                }
+                
+                // 각 자식 요소에 편집 모드 스타일 적용
+                const spans = this.querySelectorAll('span');
+                spans.forEach(span => {
+                    span.style.maxWidth = '100%';
+                    span.style.wordBreak = 'break-all';
+                    span.style.overflowWrap = 'break-word';
+                    span.style.whiteSpace = 'normal';
+                });
+            } else if (this.parentElement && this.parentElement.classList.contains('vertical-writing')) {
+                // 부모가 vertical-writing인 경우, 현재 요소에 편집 모드 스타일 적용
+                const containerWidth = parseInt(window.getComputedStyle(this.parentElement).width);
+                this.style.maxWidth = (containerWidth - 10) + 'px';
+                this.style.wordBreak = 'break-all';
+                this.style.overflowWrap = 'break-word';
+                this.style.whiteSpace = 'normal';
+            }
+            
             this.focus();
         });
         
@@ -184,6 +239,19 @@ function addEventListenersToElements() {
         element.addEventListener('blur', function() {
             this.contentEditable = false;
             this.classList.remove('editable');
+            
+            // 편집 후 텍스트 스타일 조정
+            // 여러 글자인 경우 자동 줄바꿈 적용
+            if (this.textContent && this.textContent.length > 1) {
+                this.style.wordBreak = 'break-all';
+                this.style.overflowWrap = 'break-word';
+                this.style.whiteSpace = 'normal';
+            }
+            
+            // 부모가 vertical-writing 컨테이너인 경우 부모 너비 조정
+            if (this.parentElement && this.parentElement.classList.contains('vertical-writing')) {
+                adjustContainerWidth(this.parentElement);
+            }
         });
     });
     
@@ -192,12 +260,38 @@ function addEventListenersToElements() {
     textElements.forEach(function(element) {
         // 마우스 오버 이벤트 - 배경 표시
         element.addEventListener('mouseover', function() {
+            // 원래 너비 저장
+            if (!this.dataset.originalWidth) {
+                this.dataset.originalWidth = window.getComputedStyle(this).width;
+            }
+            
+            // 마우스 호버 시에도 텍스트 줄바꿈 유지
+            if (this.textContent.length > 1) {
+                this.style.wordBreak = 'break-all';
+                this.style.overflowWrap = 'break-word';
+                this.style.whiteSpace = 'normal';
+            }
+            
+            // hover-box 클래스 추가
             this.classList.add('hover-box');
         });
         
         // 마우스 아웃 이벤트 - 배경 제거
         element.addEventListener('mouseout', function() {
             this.classList.remove('hover-box');
+            
+            // 텍스트 스타일 유지
+            if (this.textContent.length > 1) {
+                this.style.wordBreak = 'break-all';
+                this.style.overflowWrap = 'break-word';
+                this.style.whiteSpace = 'normal';
+            }
+            
+            // 만약 편집 모드가 아니라면 컨테이너 너비 조정
+            if (this.contentEditable !== 'true' && this.parentElement && 
+                this.parentElement.classList.contains('vertical-writing')) {
+                adjustContainerWidth(this.parentElement);
+            }
         });
         
         // 더블 클릭 이벤트 - 텍스트 편집
@@ -207,13 +301,88 @@ function addEventListenersToElements() {
             // 편집 모드 활성화
             this.contentEditable = true;
             this.classList.add('editable');
+            
+            // 편집을 위한 스타일 설정
+            if (this.parentElement && this.parentElement.classList.contains('vertical-writing')) {
+                const container = this.parentElement;
+                const containerWidth = parseInt(window.getComputedStyle(container).width);
+                
+                // 편집 모드에서는 텍스트 줄바꿈을 보장
+                this.style.maxWidth = (containerWidth - 10) + 'px';
+                this.style.wordBreak = 'break-all';
+                this.style.overflowWrap = 'break-word';
+                this.style.whiteSpace = 'normal';
+                
+                // hover 효과 제거
+                this.classList.remove('hover-box');
+            }
+            
             this.focus();
+        });
+        
+        // 입력 이벤트 리스너 추가 - 텍스트가 변경될 때마다 호출
+        element.addEventListener('input', function() {
+            // 직접 편집 중인 경우
+            if (this.contentEditable === 'true') {
+                // 컨테이너 요소인 경우
+                if (this.classList.contains('vertical-writing')) {
+                    // 각 span 요소에 대해 최대 너비 설정
+                    const spans = this.querySelectorAll('span');
+                    const containerWidth = parseInt(window.getComputedStyle(this).width);
+                    
+                    spans.forEach(span => {
+                        // 명시적으로 편집 모드 스타일 적용
+                        span.style.maxWidth = (containerWidth - 10) + 'px';
+                        span.style.wordBreak = 'break-all';
+                        span.style.overflowWrap = 'break-word';
+                        span.style.whiteSpace = 'normal';
+                        span.style.display = 'block'; // 블록 레벨로 설정하여 줄바꿈 보장
+                    });
+                } 
+                // 개별 요소인 경우
+                else {
+                    // 부모가 vertical-writing 컨테이너인 경우
+                    if (this.parentElement && this.parentElement.classList.contains('vertical-writing')) {
+                        const container = this.parentElement;
+                        const containerWidth = parseInt(window.getComputedStyle(container).width);
+                        
+                        // 편집 모드에서는 텍스트 줄바꿈을 보장
+                        this.style.maxWidth = (containerWidth - 10) + 'px';
+                        this.style.wordBreak = 'break-all';
+                        this.style.overflowWrap = 'break-word';
+                        this.style.whiteSpace = 'normal';
+                        this.style.display = 'block'; // 블록 레벨로 설정하여 줄바꿈 보장
+                    }
+                }
+            }
+            
+            // vertical-writing 컨테이너인 경우 너비 조정
+            if (this.classList.contains('vertical-writing')) {
+                adjustContainerWidth(this);
+            }
+            // 부모가 vertical-writing 컨테이너인 경우 부모 너비 조정
+            else if (this.parentElement && this.parentElement.classList.contains('vertical-writing')) {
+                adjustContainerWidth(this.parentElement);
+            }
         });
         
         // 편집 완료 시 이벤트
         element.addEventListener('blur', function() {
             this.contentEditable = false;
             this.classList.remove('editable');
+            
+            // 편집 후 텍스트 스타일 조정
+            // 여러 글자인 경우 자동 줄바꿈 적용
+            if (this.textContent && this.textContent.length > 1) {
+                this.style.wordBreak = 'break-all';
+                this.style.overflowWrap = 'break-word';
+                this.style.whiteSpace = 'normal';
+            }
+            
+            // 부모가 vertical-writing 컨테이너인 경우 부모 너비 조정
+            if (this.parentElement && this.parentElement.classList.contains('vertical-writing')) {
+                adjustContainerWidth(this.parentElement);
+            }
         });
     });
 }
@@ -277,6 +446,52 @@ function addEventListenersToElement(element) {
         
         e.preventDefault();
     });
+    
+    // 입력 이벤트 리스너 추가 - 텍스트가 변경될 때마다 호출
+    element.addEventListener('input', function() {
+        // 직접 편집 중인 경우
+        if (this.contentEditable === 'true') {
+            // 컨테이너 요소인 경우
+            if (this.classList.contains('vertical-writing')) {
+                // 각 span 요소에 대해 최대 너비 설정
+                const spans = this.querySelectorAll('span');
+                const containerWidth = parseInt(window.getComputedStyle(this).width);
+                
+                spans.forEach(span => {
+                    // 명시적으로 편집 모드 스타일 적용
+                    span.style.maxWidth = (containerWidth - 10) + 'px';
+                    span.style.wordBreak = 'break-all';
+                    span.style.overflowWrap = 'break-word';
+                    span.style.whiteSpace = 'normal';
+                    span.style.display = 'block'; // 블록 레벨로 설정하여 줄바꿈 보장
+                });
+            } 
+            // 개별 요소인 경우
+            else {
+                // 부모가 vertical-writing 컨테이너인 경우
+                if (this.parentElement && this.parentElement.classList.contains('vertical-writing')) {
+                    const container = this.parentElement;
+                    const containerWidth = parseInt(window.getComputedStyle(container).width);
+                    
+                    // 편집 모드에서는 텍스트 줄바꿈을 보장
+                    this.style.maxWidth = (containerWidth - 10) + 'px';
+                    this.style.wordBreak = 'break-all';
+                    this.style.overflowWrap = 'break-word';
+                    this.style.whiteSpace = 'normal';
+                    this.style.display = 'block'; // 블록 레벨로 설정하여 줄바꿈 보장
+                }
+            }
+        }
+        
+        // vertical-writing 컨테이너인 경우 너비 조정
+        if (this.classList.contains('vertical-writing')) {
+            adjustContainerWidth(this);
+        }
+        // 부모가 vertical-writing 컨테이너인 경우 부모 너비 조정
+        else if (this.parentElement && this.parentElement.classList.contains('vertical-writing')) {
+            adjustContainerWidth(this.parentElement);
+        }
+    });
 }
 
 // 클릭하면 선택 해제되도록 문서 바디에 이벤트 리스너 추가
@@ -296,7 +511,14 @@ document.body.addEventListener('click', function(e) {
 // 현재 선택된 요소의 색상을 색상 선택기에 표시
 function updateColorPickerDisplay() {
     if (selectedElement) {
-        const color = window.getComputedStyle(selectedElement).color;
+        let color;
+        
+        // 묶음 텍스트(vertical-writing)인 경우 첫 번째 자식 요소의 색상 가져오기
+        if (selectedElement.classList.contains('vertical-writing') && selectedElement.firstElementChild) {
+            color = window.getComputedStyle(selectedElement.firstElementChild).color;
+        } else {
+            color = window.getComputedStyle(selectedElement).color;
+        }
         const hexColor = rgbToHex(color);
         
         // 색상 선택기 값 업데이트
@@ -368,6 +590,11 @@ function updateElementSize(element, size) {
         element.classList.contains('blue-number') || 
         element.classList.contains('alphabet')) {
         element.style.fontSize = size + 'px';
+        
+        // 부모 컨테이너의 너비 업데이트
+        if (element.parentElement && element.parentElement.classList.contains('vertical-writing')) {
+            adjustContainerWidth(element.parentElement);
+        }
     } 
     // 컨테이너 요소인 경우 (여러 span을 포함하는 vertical-writing 요소 등)
     else if (element.classList.contains('vertical-writing')) {
@@ -376,11 +603,77 @@ function updateElementSize(element, size) {
         spans.forEach(span => {
             span.style.fontSize = size + 'px';
         });
+        
+        // 컨테이너 너비 조정
+        adjustContainerWidth(element);
     }
     // vertical-text 클래스를 가진 요소의 경우
     else {
         element.style.fontSize = size + 'px';
     }
+}
+
+// 컨테이너 너비를 내부 요소에 맞게 조정하는 함수
+function adjustContainerWidth(container) {
+    if (!container || !container.classList.contains('vertical-writing')) return;
+    
+    // 내부 요소 중 가장 넓은 요소의 너비를 찾음
+    const spans = container.querySelectorAll('span');
+    if (!spans.length) return;
+    
+    // 원래 컨테이너 너비 계산 (기본값 설정)
+    let containerWidth = 0;
+    
+    // 각 span 내의 텍스트 길이에 따라 적절한 너비 결정
+    spans.forEach(span => {
+        const text = span.textContent;
+        // 텍스트 길이에 따른 최소 필요 너비 추정
+        const textLength = text.length;
+        // 폰트 크기 가져오기
+        const fontSize = parseInt(window.getComputedStyle(span).fontSize);
+        
+        // 문자 수와 폰트 크기를 기반으로 필요한 최소 너비 추정
+        // 길이가 1인 경우, 폰트 크기의 약 1.2배
+        // 길이가 2 이상인 경우, 폰트 크기의 약 1.5배로 설정하여 더 많은 여유 공간 확보
+        let spanWidth = 0;
+        if (textLength === 1) {
+            spanWidth = fontSize * 1.2;
+        } else {
+            // 여러 글자인 경우, 자동 줄바꿈이 될 수 있도록 충분한 너비 확보
+            // 너비를 좁게 유지하면서도 텍스트가 너비에 맞게 줄바꿈되도록 함
+            spanWidth = Math.max(fontSize * 1.5, 40); // 최소 40px
+        }
+        
+        // 컨테이너 너비 업데이트 (가장 넓은 요소 기준)
+        if (spanWidth > containerWidth) {
+            containerWidth = spanWidth;
+        }
+    });
+    
+    // 최종 너비 설정 (최소 40px, 최대 80px 사이로 제한)
+    containerWidth = Math.max(40, Math.min(containerWidth, 80));
+    
+    // 컨테이너 너비 설정
+    container.style.width = containerWidth + 'px';
+    
+    // 모든 span 요소에 적절한 스타일 적용
+    spans.forEach(span => {
+        const textLength = span.textContent.length;
+        
+        // 텍스트 길이에 따라 다른 스타일 적용
+        if (textLength > 1) {
+            // 여러 글자인 경우, 자동 줄바꿈 활성화
+            span.style.wordBreak = 'break-all';
+            span.style.overflowWrap = 'break-word';
+            span.style.whiteSpace = 'normal';
+        }
+        
+        // 모든 span에 너비 제한 설정
+        span.style.maxWidth = (containerWidth - 10) + 'px'; // 패딩 고려
+        span.style.width = '100%';
+        span.style.boxSizing = 'border-box';
+        span.style.textAlign = 'center';
+    });
 }
 
 // 요소 색상 업데이트 함수
